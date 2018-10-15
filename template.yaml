@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Lambda Resolver Functions
+
+Resources:
+  ResolverFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      # CodeUri: src/
+      CodeUri: build/
+      Role: !GetAtt LambdaExecutionRole.Arn
+      # Timeout: 20
+      # MemorySize: 384
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-5afb2932
+          - sg-8f6baee7
+        SubnetIds:
+          - subnet-0da8d176
+          - subnet-7f092816
+      Events:
+        AnyRequest:
+          Type: Api
+          Properties:
+            Path: /
+            # Path: /
+            Method: ANY
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+      - PolicyName: FunctionLambdaVPCAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DeleteNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            Resource: '*'
+      - PolicyName: FunctionXRayAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - xray:PutTraceSegments
+            - xray:PutTelemetryRecords
+            Resource: '*'
