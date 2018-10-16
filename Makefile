@@ -1,20 +1,21 @@
 include .env
 
-default: compileapp awsPackage awsDeploy
+default: buildapp awsPackage awsDeploy
 
-deploy: buildapp awspackage awsdeploy
+deploy: compileapp awspackage awsdeploy
 
-buildapp:
+compileapp:
 	@rm -fr build/* && \
 	yarn run build && \
 	cp package.json build/ && \
+	cp ./src/config/defaults.yaml build/config/ && \
 	cd ./build && \
 	yarn install --prod
 
-compileapp:
+buildapp:
 	yarn run build
 
-run:
+run: buildapp
 	sam local start-api
 
 validate:

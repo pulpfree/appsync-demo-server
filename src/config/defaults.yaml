@@ -1,0 +1,8 @@
+awsRegion: 'ca-central-1'
+mongoDBPassword: ''
+mongoDBUsername: ''
+mongoDBHost: 10.0.1.9
+s3Bucket: ''
+ssmPath: 'rn-test'
+stage: 'prod'
+usessm: true

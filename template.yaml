@@ -9,11 +9,13 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: nodejs8.10
-      # CodeUri: src/
       CodeUri: build/
       Role: !GetAtt LambdaExecutionRole.Arn
       # Timeout: 20
       # MemorySize: 384
+      Environment:
+        Variables:
+          Stage: prod
       VpcConfig:
         SecurityGroupIds:
           - sg-5afb2932
@@ -26,7 +28,6 @@ Resources:
           Type: Api
           Properties:
             Path: /
-            # Path: /
             Method: ANY
 
   LambdaExecutionRole:
@@ -70,3 +71,12 @@ Resources:
             - xray:PutTraceSegments
             - xray:PutTelemetryRecords
             Resource: '*'
+      - PolicyName: FunctionParameterAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - ssm:GetParameter*
+            Resource:
+              Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/gales-dips2*
