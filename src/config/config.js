@@ -10,8 +10,6 @@ const config = {
   defaults: {},
   defaultsFN: 'defaults.yaml',
   defaultsPath: '',
-  nodeEnv: '',
-  setNodeEnv: function setNodeEnv() { this.nodeEnv = process.env.NODE_ENV },
   ssmPath: '',
   config: {},
 }
@@ -51,6 +49,9 @@ config.setDefaults = function setDefaults() {
   if (this.defaults.usessm && !this.defaults.ssmPath) {
     throw new Error('Missing ssmPath in defaults')
   }
+
+  // set stage
+  this.defaults.nodeEnv = process.env.Stage
 }
 
 config.getDefaults = function getDefaults() {
@@ -58,19 +59,17 @@ config.getDefaults = function getDefaults() {
 }
 
 config.setSSMPath = function setSSMPath() {
-  if (!this.defaults.stage || !this.defaults.ssmPath || !this.defaults.awsRegion) {
+  if (!this.defaults.ssmPath || !this.defaults.awsRegion) {
     throw new Error('Missing awsRegion, stage or ssmPath in defaults')
   }
 
-  this.setNodeEnv()
-
-  switch (this.nodeEnv) {
+  switch (this.defaults.nodeEnv) {
     case 'test':
     case 'dev':
       this.ssmPath = `/test/${this.defaults.ssmPath}`
       break
     default:
-      this.ssmPath = `/${this.defaults.stage}/${this.defaults.ssmPath}`
+      this.ssmPath = `/${this.defaults.nodeEnv}/${this.defaults.ssmPath}`
   }
 }
 

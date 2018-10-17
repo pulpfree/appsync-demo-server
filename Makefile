@@ -1,6 +1,6 @@
 include .env
 
-default: buildapp awsPackage awsDeploy
+default: buildapp awspackage awsdeploy
 
 deploy: compileapp awspackage awsdeploy
 
@@ -16,7 +16,7 @@ buildapp:
 	yarn run build
 
 run: buildapp
-	sam local start-api
+	sam local start-api -n env.json
 
 validate:
 	sam validate

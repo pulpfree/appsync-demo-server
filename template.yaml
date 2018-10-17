@@ -3,6 +3,15 @@ Transform: AWS::Serverless-2016-10-31
 
 Description: Lambda Resolver Functions
 
+Parameters:
+
+  ParamProjectName:
+    Type: String
+  ParamENV:
+    Type: String
+  ParamKeyExpiration:
+    Type: Number
+
 Resources:
   ResolverFunc:
     Type: AWS::Serverless::Function
@@ -30,6 +39,11 @@ Resources:
             Path: /
             Method: ANY
 
+  AppSyncAPI:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Join [ -, [ !Ref ParamProjectName, !Ref ParamENV ] ]
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -39,11 +53,23 @@ Resources:
         - Effect: Allow
           Principal:
             Service:
-            - lambda.amazonaws.com
+            - appsync.amazonaws.com
           Action:
           - sts:AssumeRole
       Path: "/"
       Policies:
+      - PolicyName: allow-access-to-lambda-from-appsync
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Action: lambda:invokeFunction
+            Resource:
+              # this presents a problem when first creating resources as this doesn't exist
+              Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:rn-test-ResolverFunc-G6BOHV08QKKV
+              # when using the below, I get "Circular dependency between resources" error
+              # - !GetAtt [ ResolverFunc, Arn ]
+              # - !Join [ '', [ !GetAtt [ ResolverFunc, Arn ], ':*' ] ]
       - PolicyName: root
         PolicyDocument:
           Version: '2012-10-17'
@@ -77,6 +103,6 @@ Resources:
           Statement:
           - Effect: Allow
             Action:
-            - ssm:GetParameter*
+            - ssm:GetParametersByPath
             Resource:
-              Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/gales-dips2*
+              Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/rn-test*

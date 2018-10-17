@@ -1,25 +1,19 @@
+// import mongoose from 'mongoose'
+
 import config from './config/config'
+import mongoose from './mongo/connect'
 
-config.setDefaults()
+let db
 
-exports.handler = async (event, context) => {
-  console.log('config: ', config.getDefaults())
-  // console.log("value1 = " + event.key1);
-  // console.log("value2 = " + event.key2);
-  // console.log("event: ", event); // eslint-disable-line
-  // console.log("context: ", context); // eslint-disable-line
-  // return "some success message";
-  // or
-  // return { body: 'some error type', statusCode: 501 }
-  // body: JSON.stringify({ errorMessage: 'you messed up!' }),
-
-  const response = {
-    body: JSON.stringify(config),
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+// exports.handler = (event, context, callback) => { // eslint-disable-line
+exports.handler = async (event) => {
+  if (!db) {
+    console.log('connecting to mongoose') // eslint-disable-line
+    const cfg = await config.load()
+    db = await mongoose.connect(cfg)
   }
+
+  console.log("Received event {}", JSON.stringify(event, 3)) // eslint-disable-line
 
   /* const response = {
     body: JSON.stringify({ error: 'no good request' }),
@@ -28,5 +22,6 @@ exports.handler = async (event, context) => {
       'Content-Type': 'application/json',
     },
   } */
-  return response
+  return { "id": "abc123" } // eslint-disable-line
+  // callback(null, { "id": "456123" })
 }
