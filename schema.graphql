@@ -1,0 +1,39 @@
+type Customer {
+  id: ID!
+  active: Boolean!
+  email: String
+  name: CustomerName!
+  phones: [CustomerPhone]
+  createdAt: AWSTimestamp
+  updatedAt: AWSTimestamp
+}
+
+type CustomerName {
+  first: String!
+  last: String!
+  spouse: String
+}
+
+type CustomerPhone {
+  countryCode: String
+  type: PhoneType!
+  number: String!
+}
+
+type Mutation {
+  createCustomer(id: ID!): Customer
+}
+
+enum PhoneType {
+  HOME
+  MOBILE
+}
+
+type Query {
+  getCustomer(id: ID!): Customer
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

@@ -1,4 +1,4 @@
-awsRegion: 'ca-central-1'
+awsRegion: 'us-east-1'
 mongoDBHost: 10.0.1.9
 mongoDBName: 'universal-sales'
 mongoDBPassword: null
@@ -6,6 +6,6 @@ mongoDBPort: 27017
 mongoDBReplset: null
 mongoDBUsername: null
 s3Bucket: ''
-ssmPath: 'rn-test'
+ssmPath: 'pf-appsync-demo'
 nodeEnv: 'prod'
 usessm: true

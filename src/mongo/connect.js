@@ -43,7 +43,8 @@ db.setUri = function setUri() {
     if (!this.cfg.mongoDBUsername || !this.cfg.mongoDBPassword) {
       throw new Error('Missing mongoDBUsername or mongoDBPassword in config')
     }
-    this.uri = `mongodb://${this.cfg.mongoDBUsername}:${this.cfg.mongoDBPassword}@${this.cfg.mongoDBHost}/${this.cfg.mongoDBName}?replicaSet=${this.cfg.mongoDBReplset}&authSource=admin`
+    this.uri = `mongodb+srv://${this.cfg.mongoDBUsername}:${this.cfg.mongoDBPassword}@${this.cfg.mongoDBHost}/${this.cfg.mongoDBName}?retryWrites=true`
+    // mongodb+srv://main:<PASSWORD>@cluster0-4zkpj.mongodb.net/test?retryWrites=true
   } else {
     this.uri = `mongodb://${this.cfg.mongoDBHost}/${this.cfg.mongoDBName}`
   }

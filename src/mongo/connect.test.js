@@ -10,15 +10,6 @@ test('ensure config path', async () => {
   expect(main.cfg.mongoDBHost).toBeDefined()
 })
 
-test('production environment uri to match', async () => {
-  process.env.Stage = 'prod'
-  config = await cfg.load()
-  const uri = `mongodb://${config.mongoDBUsername}:${config.mongoDBPassword}@${config.mongoDBHost}/${config.mongoDBName}?replicaSet=${config.mongoDBReplset}&authSource=admin`
-  main.cfg = config
-  main.setUri()
-  expect(main.uri).toEqual(uri)
-})
-
 test('local environment connects', async () => {
   process.env.Stage = 'test'
   config = await cfg.load()
@@ -26,6 +17,22 @@ test('local environment connects', async () => {
   expect(db.readyState).toEqual(1)
 })
 
+test('production environment uri to match', async () => {
+  process.env.Stage = 'prod'
+  config = await cfg.load()
+  const uri = `mongodb+srv://${config.mongoDBUsername}:${config.mongoDBPassword}@${config.mongoDBHost}/${config.mongoDBName}?retryWrites=true`
+  main.cfg = config
+  main.setUri()
+  expect(main.uri).toEqual(uri)
+})
+
+test('production environment connects', async () => {
+  process.env.Stage = 'prod'
+  config = await cfg.load()
+  const db = await main.connect(config)
+  expect(db.readyState).toEqual(1)
+})
+/*
 test('local environment does not connect', async () => {
   process.env.Stage = 'test'
   config = await cfg.load()
@@ -33,3 +40,4 @@ test('local environment does not connect', async () => {
   const db = await main.connect(config)
   expect(db).toBeUndefined()
 })
+*/
