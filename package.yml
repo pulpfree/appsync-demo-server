@@ -1,0 +1,212 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AppSync Lambda Resolvers
+Outputs:
+  APIKey:
+    Description: API Key
+    Value:
+      Fn::GetAtt:
+      - AppSyncAPIKey
+      - ApiKey
+  GraphQL:
+    Description: GraphQL URL
+    Value:
+      Fn::GetAtt:
+      - AppSyncAPI
+      - GraphQLUrl
+Parameters:
+  ParamENV:
+    Type: String
+  ParamKeyExpiration:
+    Type: Number
+  ParamProjectName:
+    Type: String
+Resources:
+  AppSyncAPI:
+    Properties:
+      AuthenticationType: API_KEY
+      Name:
+        Fn::Join:
+        - '-'
+        - - Ref: ParamProjectName
+          - Ref: ParamENV
+    Type: AWS::AppSync::GraphQLApi
+  AppSyncAPIKey:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      Expires:
+        Ref: ParamKeyExpiration
+    Type: AWS::AppSync::ApiKey
+  AppSyncDataSource:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      LambdaConfig:
+        LambdaFunctionArn:
+          Fn::GetAtt:
+          - Lambda
+          - Arn
+      Name: handler
+      ServiceRoleArn:
+        Fn::GetAtt:
+        - AppSyncRole
+        - Arn
+      Type: AWS_LAMBDA
+    Type: AWS::AppSync::DataSource
+  AppSyncResolverCustomer:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - AppSyncDataSource
+        - Name
+      FieldName: getCustomer
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke",
+        "payload": { "field": "getCustomer", "arguments": $utils.toJson($context.arguments)
+        } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+      TypeName: Query
+    Type: AWS::AppSync::Resolver
+  AppSyncResolverSearchCustomer:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - AppSyncDataSource
+        - Name
+      FieldName: searchCustomer
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke",
+        "payload": { "field": "searchCustomer", "arguments": $utils.toJson($context.arguments)
+        } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+      TypeName: Query
+    Type: AWS::AppSync::Resolver
+  AppSyncResolverSearchCustomerAddress:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - AppSyncDataSource
+        - Name
+      FieldName: searchCustomerByAddress
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke",
+        "payload": { "field": "searchCustomerByAddress", "arguments": $utils.toJson($context.arguments)
+        } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+      TypeName: Query
+    Type: AWS::AppSync::Resolver
+  AppSyncRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - appsync.amazonaws.com
+        Version: 2012-10-17
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action: lambda:invokeFunction
+            Effect: Allow
+            Resource:
+            - Fn::GetAtt:
+              - Lambda
+              - Arn
+            - Fn::Join:
+              - ''
+              - - Fn::GetAtt:
+                  - Lambda
+                  - Arn
+                - :*
+          Version: 2012-10-17
+        PolicyName: LambdaAccess
+    Type: AWS::IAM::Role
+  AppSyncSchema:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DefinitionS3Location: s3://pf-appsync-artifacts/lambda/76e8f7eac5d9769a5897bbba2570c977
+    Type: AWS::AppSync::GraphQLSchema
+  Lambda:
+    Properties:
+      CodeUri: s3://pf-appsync-artifacts/lambda/a0b508d9e5afb5cd10c310d96b92a6e4
+      Environment:
+        Variables:
+          NODE_ENV: production
+          Stage: prod
+      Events:
+        Api:
+          Properties:
+            Method: any
+            Path: /
+          Type: Api
+      Handler: index.handler
+      MemorySize: 1024
+      Role:
+        Fn::GetAtt:
+        - LambdaRole
+        - Arn
+      Runtime: nodejs8.10
+      Timeout: 10
+      Tracing: Active
+    Type: AWS::Serverless::Function
+  LambdaRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: 2012-10-17
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - ssm:GetParametersByPath
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/pf-appsync-demo*
+          Version: '2012-10-17'
+        PolicyName: FunctionParameterAccess
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: FunctionLogAccess
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - xray:PutTraceSegments
+            - xray:PutTelemetryRecords
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: FunctionXRayAccess
+    Type: AWS::IAM::Role
+Transform: AWS::Serverless-2016-10-31

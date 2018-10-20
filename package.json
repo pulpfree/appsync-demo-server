@@ -1,0 +1,45 @@
+{
+  "name": "rn-test-server",
+  "version": "0.0.1",
+  "description": "Resolver lambda for rn-test-client",
+  "main": "src/index.js",
+  "repository": "https://github.com/pulpfree/rn-test-server",
+  "author": "Ron Dyck <rond@webbtech.net> (http://webbtech.net/)",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "aws-sdk": "2.335.0",
+    "dotenv": "6.1.0",
+    "js-yaml": "3.12.0",
+    "mongo-sanitize": "1.0.0",
+    "mongoose": "5.3.4",
+    "ramda": "0.25.0"
+  },
+  "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-preset-env": "1.7.0",
+    "eslint": "5.7.0",
+    "eslint-config-airbnb-base": "13.1.0",
+    "eslint-plugin-import": "2.14.0",
+    "jest": "23.6.0",
+    "pre-commit": "1.2.2",
+    "prettier": "1.14.3"
+  },
+  "scripts": {
+    "lint": "eslint './src/**/*.js'",
+    "lint:fix": "eslint './src/**/*.js' --fix",
+    "test": "jest src",
+    "test:w": "jest --watch src",
+    "test:clear": "jest --clearCache",
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
+    "prettier": "prettier --write './src/*.js'",
+    "fmtcode": "yarn run prettier && yarn run lint:fix",
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "build": "babel src -d build"
+  },
+  "pre-commit": [
+    "precommit-msg",
+    "fmtcode",
+    "test"
+  ]
+}
