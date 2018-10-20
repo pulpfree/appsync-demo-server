@@ -11,7 +11,9 @@
     "aws-sdk": "2.335.0",
     "dotenv": "6.1.0",
     "js-yaml": "3.12.0",
-    "mongoose": "5.3.4"
+    "mongo-sanitize": "1.0.0",
+    "mongoose": "5.3.4",
+    "ramda": "0.25.0"
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
@@ -28,6 +30,7 @@
     "lint:fix": "eslint './src/**/*.js' --fix",
     "test": "jest src",
     "test:w": "jest --watch src",
+    "test:clear": "jest --clearCache",
     "coverage": "jest --collectCoverageFrom=src/**.js --coverage src",
     "prettier": "prettier --write './src/*.js'",
     "fmtcode": "yarn run prettier && yarn run lint:fix",

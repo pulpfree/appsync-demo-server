@@ -74,6 +74,40 @@ Resources:
       ResponseMappingTemplate: $util.toJson($context.result)
       TypeName: Query
     Type: AWS::AppSync::Resolver
+  AppSyncResolverSearchCustomer:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - AppSyncDataSource
+        - Name
+      FieldName: searchCustomer
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke",
+        "payload": { "field": "searchCustomer", "arguments": $utils.toJson($context.arguments)
+        } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+      TypeName: Query
+    Type: AWS::AppSync::Resolver
+  AppSyncResolverSearchCustomerAddress:
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - AppSyncAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - AppSyncDataSource
+        - Name
+      FieldName: searchCustomerByAddress
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke",
+        "payload": { "field": "searchCustomerByAddress", "arguments": $utils.toJson($context.arguments)
+        } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+      TypeName: Query
+    Type: AWS::AppSync::Resolver
   AppSyncRole:
     Properties:
       AssumeRolePolicyDocument:
@@ -109,13 +143,14 @@ Resources:
         Fn::GetAtt:
         - AppSyncAPI
         - ApiId
-      DefinitionS3Location: s3://pf-appsync-artifacts/lambda/e5184680040d6cb60a200d0e318705f9
+      DefinitionS3Location: s3://pf-appsync-artifacts/lambda/76e8f7eac5d9769a5897bbba2570c977
     Type: AWS::AppSync::GraphQLSchema
   Lambda:
     Properties:
-      CodeUri: s3://pf-appsync-artifacts/lambda/df40054fd63557b56d6fc36b1fa6f77d
+      CodeUri: s3://pf-appsync-artifacts/lambda/a0b508d9e5afb5cd10c310d96b92a6e4
       Environment:
         Variables:
+          NODE_ENV: production
           Stage: prod
       Events:
         Api:
@@ -124,11 +159,13 @@ Resources:
             Path: /
           Type: Api
       Handler: index.handler
+      MemorySize: 1024
       Role:
         Fn::GetAtt:
         - LambdaRole
         - Arn
       Runtime: nodejs8.10
+      Timeout: 10
       Tracing: Active
     Type: AWS::Serverless::Function
   LambdaRole:

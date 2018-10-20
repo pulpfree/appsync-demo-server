@@ -22,11 +22,13 @@ Resources:
       Tracing: Active
       CodeUri: build/
       Role: !GetAtt LambdaRole.Arn
-      # Timeout: 20
+      Timeout: 10
       # MemorySize: 384
+      MemorySize: 1024
       Environment:
         Variables:
           Stage: prod
+          NODE_ENV: production
       Events:
         Api:
           Type: Api
@@ -134,8 +136,27 @@ Resources:
       TypeName: Query
       FieldName: getCustomer
       DataSourceName: !GetAtt [ AppSyncDataSource, Name ]
-      # RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke", "payload": { "resolve": "query.getCustomer", "context": $utils.toJson($context) } }'
       RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke", "payload": { "field": "getCustomer", "arguments": $utils.toJson($context.arguments) } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+
+  AppSyncResolverSearchCustomer:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt [ AppSyncAPI, ApiId ]
+      TypeName: Query
+      FieldName: searchCustomer
+      DataSourceName: !GetAtt [ AppSyncDataSource, Name ]
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke", "payload": { "field": "searchCustomer", "arguments": $utils.toJson($context.arguments) } }'
+      ResponseMappingTemplate: $util.toJson($context.result)
+
+  AppSyncResolverSearchCustomerAddress:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt [ AppSyncAPI, ApiId ]
+      TypeName: Query
+      FieldName: searchCustomerByAddress
+      DataSourceName: !GetAtt [ AppSyncDataSource, Name ]
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke", "payload": { "field": "searchCustomerByAddress", "arguments": $utils.toJson($context.arguments) } }'
       ResponseMappingTemplate: $util.toJson($context.result)
 
 Outputs:

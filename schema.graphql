@@ -1,11 +1,30 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Address {
+  _id: ID!
+  associate: String!
+  city: String
+  country: String
+  countryCode: String
+  postalCode: String
+  provinceCode: String
+  street1: String
+  street2: String
+  type: String
+}
+
 type Customer {
-  id: ID!
+  _id: ID!
   active: Boolean!
+  address: Address
+  createdAt: String
   email: String
   name: CustomerName!
   phones: [CustomerPhone]
-  createdAt: AWSTimestamp
-  updatedAt: AWSTimestamp
+  updatedAt: String
 }
 
 type CustomerName {
@@ -15,8 +34,8 @@ type CustomerName {
 }
 
 type CustomerPhone {
+  _id: PhoneType!
   countryCode: String
-  type: PhoneType!
   number: String!
 }
 
@@ -24,16 +43,13 @@ type Mutation {
   createCustomer(id: ID!): Customer
 }
 
-enum PhoneType {
-  HOME
-  MOBILE
-}
-
 type Query {
   getCustomer(id: ID!): Customer
+  searchCustomer(field: String!, value: String!): [Customer]
+  searchCustomerByAddress(search: String!): [Customer]
 }
 
-schema {
-  query: Query
-  mutation: Mutation
+enum PhoneType {
+  home
+  mobile
 }

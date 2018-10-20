@@ -32,12 +32,11 @@ test('production environment connects', async () => {
   const db = await main.connect(config)
   expect(db.readyState).toEqual(1)
 })
-/*
+
 test('local environment does not connect', async () => {
   process.env.Stage = 'test'
   config = await cfg.load()
-  config.mongoDBHost = 'badDB'
+  config.mongoDBHost = 'mongodb://badhost'
   const db = await main.connect(config)
   expect(db).toBeUndefined()
 })
-*/
